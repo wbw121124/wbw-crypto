@@ -1014,7 +1014,7 @@ export namespace SHA256 {
 	 * @returns 循环右移结果
 	 */
 	function rotr(x: number, n: number): number {
-		return (x >>> n) | (x << (32 - n));
+		return ((x >>> n) | (x << (32 - n))) >>> 0;
 	}
 
 	/**
@@ -1024,8 +1024,10 @@ export namespace SHA256 {
 	 */
 	function pad(message: Uint8Array): Uint8Array {
 		const ml = message.length * 8;
-		const paddingLen = (448 - (ml + 1) % 512 + 512) % 512;
-		const result = new Uint8Array(message.length + 1 + paddingLen / 8 + 8);
+		const paddingLenBits = (448 - (ml + 1) % 512 + 512) % 512;
+		// 0x80字节代表bit'1'和7个bit'0'，所以剩余padding bits需要转换为字节
+		const paddingLenBytes = (paddingLenBits - 7) / 8;
+		const result = new Uint8Array(message.length + 1 + paddingLenBytes + 8);
 
 		result.set(message);
 		result[message.length] = 0x80;
@@ -1148,8 +1150,10 @@ export namespace SHA512 {
 	 */
 	function pad(message: Uint8Array): Uint8Array {
 		const ml = BigInt(message.length * 8);
-		const paddingLen = Number((448n - (ml + 1n) % 1024n + 1024n) % 1024n);
-		const result = new Uint8Array(message.length + 1 + paddingLen / 8 + 16);
+		const paddingLenBits = Number((448n - (ml + 1n) % 1024n + 1024n) % 1024n);
+		// 0x80字节代表bit'1'和7个bit'0'，所以剩余padding bits需要转换为字节
+		const paddingLenBytes = (paddingLenBits - 7) / 8;
+		const result = new Uint8Array(message.length + 1 + paddingLenBytes + 16);
 
 		result.set(message);
 		result[message.length] = 0x80;
@@ -1454,8 +1458,10 @@ export namespace MD5 {
 	 */
 	function pad(message: Uint8Array): Uint8Array {
 		const ml = message.length * 8;
-		const paddingLen = (448 - (ml + 1) % 512 + 512) % 512;
-		const result = new Uint8Array(message.length + 1 + paddingLen / 8 + 8);
+		const paddingLenBits = (448 - (ml + 1) % 512 + 512) % 512;
+		// 0x80字节代表bit'1'和7个bit'0'，所以剩余padding bits需要转换为字节
+		const paddingLenBytes = (paddingLenBits - 7) / 8;
+		const result = new Uint8Array(message.length + 1 + paddingLenBytes + 8);
 
 		result.set(message);
 		result[message.length] = 0x80;
